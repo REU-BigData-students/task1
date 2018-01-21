@@ -6,16 +6,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 
-fee = 'fee.xls'
-cen = 'cen.xls'
-
 # считываем необходимые файлы с сайта Росстата со среднедушевыми доходами
 # по субъектам РФ за 2013-2106 гг, а также данные о стоимости минимального
 # набора продуктов питания
 
-income = pd.read_excel(fee, sheet_name=0, header=2, index_col=0,
+income = pd.read_excel('fee.xls', sheet_name=0, header=2, index_col=0,
     skiprows=0, na_values='NaN')
-price = pd.read_excel(cen, sheet_name=0, header=3, index_col=0,
+price = pd.read_excel('cen.xls', sheet_name=0, header=3, index_col=0,
     skiprows=0, na_values='NaN')
 
 names_value = []
@@ -33,42 +30,40 @@ for index, row in filtr.iterrows():
 names_value.pop(2)
 names_value.pop(7)
 
-lst2 = []
-lst3 = []
-lst4 = []
-lst1 = []
+def meanValue(begin, end):
+    average = []
+    lst = []
+    for i in range(0, len(filtr)):
+        for j in range(begin, end):
+            lst.append(filtr.iloc[i][j])
+        average.append(np.mean(lst))
+        lst.clear()
+    return average
 
-average_2013 = []
-average_2014 = []
-average_2015 = []
-average_2016 = []
+def addValue(income):
+    value = []
+    for i in range(0, len(income)):
+        value.append(income.iloc[i])
+    value.pop(2)
+    return value
+
+def preparationResult(average, value):
+    rslt = []
+    for i in range(0, len(average)):
+        rslt.append(average[i]/value[i])
+    return rslt
+
+def printResult(result):
+    for i in range(0, len(result)):
+        print(names_value[i], result[i])
 
 # посчитаем среднее значение по годам стоимости минимального набора питания
 # о всем ФО, так как данных за год не предоставлено
 
-for i in range(0, len(filtr)):
-    for j in range(0, 12):
-        lst1.append(filtr.iloc[i][j])
-    average_2013.append(np.mean(lst1))
-    lst1.clear()
-
-for i in range(0, len(filtr)):
-    for j in range(12, 24):
-        lst2.append(filtr.iloc[i][j])
-    average_2014.append(np.mean(lst2))
-    lst2.clear()
-
-for i in range(0, len(filtr)):
-    for j in range(24, 36):
-        lst3.append(filtr.iloc[i][j])
-    average_2015.append(np.mean(lst3))
-    lst3.clear()
-
-for i in range(0, len(filtr)):
-    for j in range(36, 48):
-        lst4.append(filtr.iloc[i][j])
-    average_2016.append(np.mean(lst4))
-    lst4.clear()
+average_2013 = meanValue(0, 12)
+average_2014 = meanValue(12, 24)
+average_2015 = meanValue(24, 36)
+average_2016 = meanValue(36, 48)
 
 # очистим списки от ненужных nan
 
@@ -88,75 +83,30 @@ income_2014 = filtr_income['2014 год']
 income_2015 = filtr_income['2015год']
 income_2016 = filtr_income['2016год']
 
-value_2013 = []
-value_2014 = []
-value_2015 = []
-value_2016 = []
-
 # добавим в списки только значения по каждому году из данных об усредненных
 # доходах, также удалим данные по Южному ФО, так как их не с чем сравнивать
 
-for i in range(0, len(income_2013)):
-    value_2013.append(income_2013.iloc[i])
-value_2013.pop(2)
+value_2013 = addValue(income_2013)
+value_2014 = addValue(income_2014)
+value_2015 = addValue(income_2015)
+value_2016 = addValue(income_2016)
 
-for i in range(0, len(income_2014)):
-    value_2014.append(income_2014.iloc[i])
-value_2014.pop(2)
+rslt1 = preparationResult(average_2013, value_2013)
+rslt2 = preparationResult(average_2014, value_2014)
+rslt3 = preparationResult(average_2015, value_2015)
+rslt4 = preparationResult(average_2016, value_2016)
 
-for i in range(0, len(income_2015)):
-    value_2015.append(income_2015.iloc[i])
-value_2015.pop(2)
-
-for i in range(0, len(income_2016)):
-    value_2016.append(income_2016.iloc[i])
-value_2016.pop(2)
-
-rslt = []
-rslt1 = []
-rslt2 = []
-rslt3 = []
-
-for i in range(0, len(average_2013)):
-        rslt.append(average_2013[i]/value_2013[i])
-
-for i in range(0, len(average_2014)):
-        rslt1.append(average_2014[i]/value_2014[i])
-
-for i in range(0, len(average_2015)):
-        rslt2.append(average_2015[i]/value_2015[i])
-
-for i in range(0, len(average_2016)):
-        rslt3.append(average_2016[i]/value_2016[i])
-
-print('\n')
 print('Результаты за 2013 год:' + '\n')
+printResult(rslt1)
 
-
-# вывод результатов (2013 год)
-for i in range(0, len(rslt)):
-    print(names_value[i], rslt[i])
-
-print('\n')
 print('Результаты за 2014 год:' + '\n')
+printResult(rslt2)
 
-# вывод результатов (2014 год)
-for i in range(0, len(rslt1)):
-    print(names_value[i], rslt1[i])
-
-print('\n')
 print('Результаты за 2015 год:' + '\n')
+printResult(rslt3)
 
-# вывод результатов (2015 год)
-for i in range(0, len(rslt2)):
-    print(names_value[i], rslt2[i])
-
-print('\n')
 print('Результаты за 2016 год:' + '\n')
-
-# вывод результатов (2016 год)
-for i in range(0, len(rslt3)):
-    print(names_value[i], rslt3[i])
+printResult(rslt4)
 
 # построим диаграмму отношения минимального набора
 # питания к доходам за 2015, 2016 гг
