@@ -10,25 +10,21 @@ income = pd.read_excel('fee.xls', sheet_name=0, header=2, index_col=0,
                        skiprows=0, na_values='NaN')
 price = pd.read_excel('cen.xls', sheet_name=0, header=3, index_col=0,
                       skiprows=0, na_values='NaN')
+
+
 def main():
     filtr = price.filter(like='федеральный округ', axis=0)
-
     average_2013 = meanValue(0, 12)
     average_2014 = meanValue(12, 24)
     average_2015 = meanValue(24, 36)
     average_2016 = meanValue(36, 48)
-
     average_2015.pop(7)
-
     names_value = []
     for index, row in filtr.iterrows():
         names_value.append(index)
-
     names_value.pop(2)
     names_value.pop(7)
-
     filtr_income = income.filter(like='федеральный', axis=0)
-
     income_2013 = filtr_income['2013 год']
     income_2014 = filtr_income['2014 год']
     income_2015 = filtr_income['2015год']
@@ -57,8 +53,8 @@ def main():
     printResult(rslt4, names_value)
 
     arr = ['ЦФО', 'CЗФО', 'СКФО', 'ПФО', 'УФО', 'СФО', 'ДФО']
-
     graf(arr, rslt1, rslt2, rslt3, rslt4)
+
 
 def meanValue(begin, end):
     """ Calculation of the average value of the basket by years.
@@ -66,6 +62,7 @@ def meanValue(begin, end):
     Keyword arguments:
     begin -- the month from which the value of the basket is counted
     end -- month to which the cost of the basket is calculated
+
 
     """
     filtr = price.filter(like='федеральный округ', axis=0)
@@ -79,6 +76,7 @@ def meanValue(begin, end):
     average = list(filter(lambda i: str(i) != 'nan', average))
     return average
 
+
 def addValue(income):
     """ Adding only numeric values to the lists for each year """
     value = []
@@ -87,12 +85,14 @@ def addValue(income):
     value.pop(2)
     return value
 
+
 def preparationResult(average, value):
-    """Calculating the ratio of the value of the basket to the per capita income"""
+    """Calculating the ratio of the value of the basket to the income"""
     rslt = []
     for i in range(0, len(average)):
         rslt.append(average[i]/value[i])
     return rslt
+
 
 def printResult(result, names_value):
     """Displaying results"""
@@ -100,15 +100,15 @@ def printResult(result, names_value):
     for i in range(0, len(result)):
         print(names_value[i], result[i])
 
+
 def graf(arr, rslt1, rslt2, rslt3, rslt4):
     """Construction of results charts
-    
-    firstle, the diagram a coefficient chart for 2015 and 2016
+
+    firstly, the diagram a coefficient chart for 2015 and 2016
     secondly, the coefficient chart for 2016
     thirdly, the diagram of average per capita income for 2016
 
     """
-
     filtr_income = income.filter(like='федеральный', axis=0)
     income_2016 = filtr_income['2016год']
     average_2016 = meanValue(36, 48)
@@ -116,35 +116,30 @@ def graf(arr, rslt1, rslt2, rslt3, rslt4):
     dpi = 80
     fig = plt.figure(dpi=dpi, figsize=(879 / dpi, 600 / dpi))
     mpl.rcParams.update({'font.size': 9})
-    plt.title('Гистограмма отношения минимальной продуктовой потребительской' +
-            '\n' + 'корзины от среднедушевых доходов граждан по регионам' +
-            '\n' + 'за 2015 и 2016 года')
+    plt.title(
+        'Гистограмма отношения минимальной продуктовой потребительской' +
+        '\n' + 'корзины от среднедушевых доходов граждан по регионам' +
+        '\n' + 'за 2015 и 2016 года')
     plt.ylabel('Наименование федерального округа')
     plt.xlabel('Значение коэффициента')
-
     xs = range(len(arr))
-
     plt.barh([x + 0.38 for x in xs], rslt2,
              height=0.2, color='red', alpha=0.7, label='2015 год',
              zorder=2)
-
     plt.barh([x + 0.05 for x in xs], rslt3,
              height=0.2, color='blue', alpha=0.7, label='2016 год',
              zorder=2)
-
     plt.yticks(xs, arr, rotation=10)
     plt.legend(loc='upper right')
     plt.show()
 
     plt.bar(arr, average_2016, color='red', label='2016', alpha=0.7, zorder=2)
-
     plt.xlabel('Наименование федерального округа')
     plt.ylabel('Стоимость минимальной потребительской корзины')
-    plt.title('Диаграмма стоимости минимальной потребительской корзины' + '\n' +
-              'по федеральным округам за 2016 год')
+    plt.title(
+        'Диаграмма стоимости минимальной потребительской корзины' +
+        '\n' + 'по федеральным округам за 2016 год')
     plt.show()
-
-    # построим диаграмму средней заработной платы по округам за 2016 год
 
     plt.bar(arr, value_2016, color='black', alpha=0.7, label='2016',
             zorder=2)
